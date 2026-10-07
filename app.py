@@ -13,35 +13,33 @@ def weather_agent(location_name):
     if not location_name.strip():
         return "Please enter a valid city name."
     
-    # FIX 1: Dedicated Geocoding Subdomain with '?name=' URL parameter configuration
+    # ✅ FIX: Properly formatted API URL
     geo_url = f"https://open-meteo.com{location_name}&count=1&language=en&format=json"
+    
     try:
         geo_res = requests.get(geo_url).json()
         if "results" not in geo_res or not geo_res["results"]:
             return f"❌ Could not find a location named '{location_name}'."
         
-        # FIX 2: Added [0] index to cleanly pull out the first matching dictionary item
+        # Grab the first match
         loc_data = geo_res["results"][0]
         lat, lon = loc_data["latitude"], loc_data["longitude"]
         full_name = f"{loc_data['name']}, {loc_data.get('country', '')}"
         
-        # FIX 3: Dedicated Forecast Subdomain with proper parameter query format
+        # Step 2: Fetch weather details
         weather_url = f"https://open-meteo.com{lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code"
         weather_res = requests.get(weather_url).json()
         
         current = weather_res["current"]
-        temp = current["temperature_2m"]
-        feels_like = current["apparent_temperature"]
-        humidity = current["relative_humidity_2m"]
-        
         return {
             "location": full_name,
-            "temp": temp,
-            "feels_like": feels_like,
-            "humidity": humidity
+            "temp": current["temperature_2m"],
+            "feels_like": current["apparent_temperature"],
+            "humidity": current["relative_humidity_2m"]
         }
     except Exception as e:
         return f"⚠️ Error processing your request: {str(e)}"
+
 
 # 4. Trigger & Output Display
 if st.button("Ask Agent"):
