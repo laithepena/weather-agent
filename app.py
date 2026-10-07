@@ -16,7 +16,7 @@ def weather_agent(location_name):
     clean_location = location_name.strip()
     
     # --- STEP 1: Fetch Geocoding Coordinates ---
-    geo_url = "https://open-meteo.com"
+    geo_url = "https://geocoding-api.open-meteo.com/v1/search"
     geo_params = {
         "name": clean_location,
         "count": 1,
@@ -26,15 +26,16 @@ def weather_agent(location_name):
     
     try:
         geo_response = requests.get(geo_url, params=geo_params)
-        geo_response.raise_for_status()  # Stop early if server throws an HTTP error
+        geo_response.raise_for_status() 
         geo_res = geo_response.json()
         
         # Verify the key exists and has items
         if "results" not in geo_res or not geo_res["results"]:
             return f"❌ Could not find a location named '{clean_location}'."
         
-        # 🔑 FIX: Target the first dictionary item inside the list array using [0]
+        # 🔑 FIXED LINE: Extract the first dictionary item inside the list array using [0]
         loc_data = geo_res["results"][0]
+        
         lat = loc_data["latitude"]
         lon = loc_data["longitude"]
         full_name = f"{loc_data['name']}, {loc_data.get('country', '')}"
@@ -65,10 +66,9 @@ def weather_agent(location_name):
         
     except requests.exceptions.HTTPError as http_err:
         return f"⚠️ API Server Error occurred: {http_err}"
-    except requests.exceptions.JSONDecodeError:
-        return "⚠️ Received invalid formatting payload or an empty page from the server."
     except Exception as e:
         return f"⚠️ Error processing your request: {str(e)}"
+
 
 # 4. Trigger & Output Display
 if st.button("Ask Agent"):
