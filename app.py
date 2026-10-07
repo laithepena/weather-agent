@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # 1. Title and Description
-st.title("🌤️ Simple AI Weather Agent")
+st.title("🌤️ Simple AI Weather Agent by Shivadeep")
 st.write("Enter any city below to get real-time weather using Open-Meteo's free API.")
 
 # 2. User Input
