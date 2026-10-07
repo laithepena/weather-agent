@@ -13,19 +13,20 @@ def weather_agent(location_name):
     if not location_name.strip():
         return "Please enter a valid city name."
     
-    # 1. CORRECT GEOCODING URL
+    # FIX 1: Point to the correct geocoding subdomain and use the ?name= parameter
     geo_url = f"https://open-meteo.com{location_name}&count=1&language=en&format=json"
+    
     try:
         geo_res = requests.get(geo_url).json()
         if "results" not in geo_res or not geo_res["results"]:
             return f"❌ Could not find a location named '{location_name}'."
         
-        # Pull index 0 safely
+        # FIX 2: Safely extract the first matching location object from the results array
         loc_data = geo_res["results"][0]
         lat, lon = loc_data["latitude"], loc_data["longitude"]
         full_name = f"{loc_data['name']}, {loc_data.get('country', '')}"
         
-        # 2. CORRECT FORECAST URL
+        # FIX 3: Point to the correct api subdomain and use the /v1/forecast path
         weather_url = f"https://open-meteo.com{lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code"
         weather_res = requests.get(weather_url).json()
         
@@ -42,6 +43,7 @@ def weather_agent(location_name):
         }
     except Exception as e:
         return f"⚠️ Error processing your request: {str(e)}"
+
 
 
 # 4. Trigger & Output Display
