@@ -15,7 +15,7 @@ def weather_agent(location_name):
     
     clean_location = location_name.strip()
     
-    # 🔗 FIX 1: Use the correct Geocoding API domain, path, and '?name=' query structure
+    # 1. Geocoding API Configuration
     geo_url = "https://open-meteo.com"
     geo_params = {
         "name": clean_location,
@@ -25,17 +25,22 @@ def weather_agent(location_name):
     }
     
     try:
-        # Using the 'params' argument automatically structures the URL safely
-        geo_res = requests.get(geo_url, params=geo_params).json()
+        geo_response = requests.get(geo_url, params=geo_params)
+        
+        # Check if the server returned an HTTP error code (400, 404, 500, etc.)
+        geo_response.raise_for_status()
+        geo_res = geo_response.json()
+        
         if "results" not in geo_res or not geo_res["results"]:
             return f"❌ Could not find a location named '{clean_location}'."
         
+        # ✅ FIX: Extract the FIRST dictionary object from the results list
         loc_data = geo_res["results"][0]
         lat = loc_data["latitude"]
         lon = loc_data["longitude"]
         full_name = f"{loc_data['name']}, {loc_data.get('country', '')}"
         
-        # 🔗 FIX 2: Use the correct Forecast API domain, path, and parameters
+        # 2. Weather API Configuration
         weather_url = "https://open-meteo.com"
         weather_params = {
             "latitude": lat,
@@ -43,17 +48,26 @@ def weather_agent(location_name):
             "current": "temperature_2m,relative_humidity_2m,apparent_temperature"
         }
         
-        weather_res = requests.get(weather_url, params=weather_params).json()
+        weather_response = requests.get(weather_url, params=weather_params)
+        weather_response.raise_for_status()
+        weather_res = weather_response.json()
         
+        # ✅ FIX: Guard against missing 'current' block
+        if "current" not in weather_res:
+            return "❌ Weather data format returned from the server was unexpected."
+            
         current = weather_res["current"]
         return {
             "location": full_name,
-            "temp": current["temperature_2m"],
-            "feels_like": current["apparent_temperature"],
-            "humidity": current["relative_humidity_2m"]
+            "temp": current.get("temperature_2m", "N/A"),
+            "feels_like": current.get("apparent_temperature", "N/A"),
+            "humidity": current.get("relative_humidity_2m", "N/A")
         }
+    except requests.exceptions.HTTPError as http_err:
+        return f"⚠️ Server Error: The API returned status code {geo_response.status_code}."
     except Exception as e:
         return f"⚠️ Error processing your request: {str(e)}"
+
 
 # 4. Trigger & Output Display
 if st.button("Ask Agent"):
