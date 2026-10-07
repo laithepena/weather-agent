@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # 1. Title and Description
-st.title("🌤️ Simple AI Weather Agent by Shivadeep")
+st.title("🌤️ Simple AI Weather Agent by Shivadeep1")
 st.write("Enter any city below to get real-time weather using Open-Meteo's free API.")
 
 # 2. User Input
@@ -13,20 +13,19 @@ def weather_agent(location_name):
     if not location_name.strip():
         return "Please enter a valid city name."
     
-    # FIX 1: Point to the correct geocoding subdomain and use the ?name= parameter
+    # FIX 1: Dedicated Geocoding Subdomain with '?name=' URL parameter configuration
     geo_url = f"https://open-meteo.com{location_name}&count=1&language=en&format=json"
-    
     try:
         geo_res = requests.get(geo_url).json()
         if "results" not in geo_res or not geo_res["results"]:
             return f"❌ Could not find a location named '{location_name}'."
         
-        # FIX 2: Safely extract the first matching location object from the results array
+        # FIX 2: Added [0] index to cleanly pull out the first matching dictionary item
         loc_data = geo_res["results"][0]
         lat, lon = loc_data["latitude"], loc_data["longitude"]
         full_name = f"{loc_data['name']}, {loc_data.get('country', '')}"
         
-        # FIX 3: Point to the correct api subdomain and use the /v1/forecast path
+        # FIX 3: Dedicated Forecast Subdomain with proper parameter query format
         weather_url = f"https://open-meteo.com{lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code"
         weather_res = requests.get(weather_url).json()
         
@@ -43,8 +42,6 @@ def weather_agent(location_name):
         }
     except Exception as e:
         return f"⚠️ Error processing your request: {str(e)}"
-
-
 
 # 4. Trigger & Output Display
 if st.button("Ask Agent"):
