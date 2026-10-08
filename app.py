@@ -33,7 +33,7 @@ def weather_agent(location_name):
         if "results" not in geo_res or not geo_res["results"]:
             return f"❌ Could not find a location named '{clean_location}'."
         
-        # 🔑 FIXED LINE: Extract the first dictionary item inside the list array using [0]
+        # Extract the first dictionary item inside the list array using [0]
         loc_data = geo_res["results"][0]
         
         lat = loc_data["latitude"]
@@ -46,7 +46,7 @@ def weather_agent(location_name):
             "latitude": lat,
             "longitude": lon,
             "current": "temperature_2m,relative_humidity_2m,apparent_temperature",
-            "temperature_unit": "fahrenheit",
+            "temperature_unit": "fahrenheit",  # Server returns numbers in Fahrenheit
             "timezone": "auto"
         }
         
@@ -79,8 +79,9 @@ if st.button("Ask Agent Rudee"):
         if isinstance(result, dict):
             st.success(f"### Weather for {result['location']}")
             col1, col2, col3 = st.columns(3)
-            col1.metric("Temperature", f"{result['temp']}°C")
-            col2.metric("Feels Like", f"{result['feels_like']}°C")
+            # ✅ FIXED: Display labels updated to show °F instead of °C
+            col1.metric("Temperature", f"{result['temp']}°F")
+            col2.metric("Feels Like", f"{result['feels_like']}°F")
             col3.metric("Humidity", f"{result['humidity']}%")
         else:
             st.error(result)
