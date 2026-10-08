@@ -71,7 +71,7 @@ def weather_agent(location_name):
 
 
 # 4. Trigger & Output Display
-if st.button("Ask Agent"):
+if st.button("Ask Agent Rudee"):
     with st.spinner("Agent is analyzing location and fetching live data..."):
         result = weather_agent(city)
         
