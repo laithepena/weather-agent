@@ -46,6 +46,7 @@ def weather_agent(location_name):
             "latitude": lat,
             "longitude": lon,
             "current": "temperature_2m,relative_humidity_2m,apparent_temperature",
+            "temperature_unit": "fahrenheit",
             "timezone": "auto"
         }
         
